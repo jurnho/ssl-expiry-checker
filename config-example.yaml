@@ -3,4 +3,11 @@ hosts:
   - example.com
   - example.net:443
 
-minimum_days_until_expiry: 20
+alert:
+  minimum_days_until_expiry: 20
+  smtp:
+    to_address: alerts@example.com
+    from_address: ssl-expiry-checker@example.com
+    host: smtp.example.com
+    username: user123
+    password: password123
