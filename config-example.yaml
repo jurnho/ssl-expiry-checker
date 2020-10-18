@@ -1,0 +1,6 @@
+---
+hosts:
+  - example.com
+  - example.net:443
+
+minimum_days_until_expiry: 20
