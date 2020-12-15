@@ -18,7 +18,7 @@ def parse_host_port(hostname_and_optional_port):
 def check_host(hostname_and_optional_port):
     try:
         [hostname, port] = parse_host_port(hostname_and_optional_port)
-        print("checking " + hostname + " port " + str(port))
+        print("checking " + hostname + ", port " + str(port))
         context = ssl.create_default_context()
         with socket.create_connection((hostname, port)) as sock:
             with context.wrap_socket(sock, server_hostname=hostname) as ssock:
@@ -40,12 +40,21 @@ def check_host(hostname_and_optional_port):
                 }
 
     except ssl.SSLCertVerificationError as e:
+        # https://github.com/openssl/openssl/blob/master/include/openssl/x509_vfy.h.in
         print("  error:" + str(e.verify_code) + ":" + e.verify_message)
+        if e.verify_code == 10:
+            return {
+                "hostname": hostname,
+                "port": port,
+                "expired": True
+            }
+        # return expired anyway...
         return {
                             "hostname": hostname,
                             "port": port,
                             "expired": True
                         }
+
 
 
 def send_alert_smtp(result, smtp_config):
@@ -72,14 +81,11 @@ def send_alert_smtp(result, smtp_config):
 
 
 def send_alert(result, alert_config):
-    print(result)
-    print(alert_config)
     if (alert_config['smtp']):
         send_alert_smtp(result, alert_config['smtp'])
 
 
-def result_is_expired(result):
-    print(result)
+def should_send_alert(result):
     if (result["expired"]):
         return True
     if result["days_until_expiry"] <= config['alert']['minimum_days_until_expiry']:
@@ -93,5 +99,5 @@ config = yaml.safe_load(open(sys.argv[1]))
 results = list(map(check_host, config['hosts']))
 
 for result in results:
-    if (result_is_expired(result)):
+    if (should_send_alert(result)):
         send_alert(result, config['alert'])
