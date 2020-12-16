@@ -11,3 +11,5 @@ alert:
     host: smtp.example.com
     username: user123
     password: password123
+
+repeat_interval_seconds: 86400

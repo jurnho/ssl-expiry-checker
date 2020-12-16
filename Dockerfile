@@ -8,3 +8,4 @@ RUN chmod 755 /home/sslcheck/check.py
 RUN chown sslcheck /home/sslcheck/check.py
 USER sslcheck
 WORKDIR /home/sslcheck/
+ENTRYPOINT ["/home/sslcheck/check.py", "/config.yml"]

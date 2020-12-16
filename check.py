@@ -92,12 +92,24 @@ def should_send_alert(result):
         return True
     return False
 
+def execute(config):
+    results = list(map(check_host, config['hosts']))
+
+    for result in results:
+        if (should_send_alert(result)):
+            send_alert(result, config['alert'])
+
+def execution_and_repeat(config):
+    while True:
+        execute(config)
+        if 'repeat_interval_seconds' not in config:
+            print ('done')
+            return
+        # wait
+        sleep_time_seconds = int(config['repeat_interval_seconds'])
+        time.sleep(sleep_time_seconds)
 
 if (len(sys.argv) == 1):
     print("usage: check.py config.yaml")
 config = yaml.safe_load(open(sys.argv[1]))
-results = list(map(check_host, config['hosts']))
-
-for result in results:
-    if (should_send_alert(result)):
-        send_alert(result, config['alert'])
+execution_and_repeat(config)
