@@ -55,6 +55,12 @@ def check_host(hostname_and_optional_port):
                             "expired": True
                         }
 
+    except TimeoutError as e:
+        return {
+            "hostname": hostname + " timeout",
+            "port": port,
+            "expired": True
+        }
 
 
 def send_alert_smtp(result, smtp_config):
